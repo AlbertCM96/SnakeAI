@@ -22,9 +22,9 @@ import csv
 SQUARE_SIZE = (35, 35)
 
 GEN_LIMIT=5
-training = False
+training = True
 
-tested = 625
+tested = 1
 
 
 
@@ -194,8 +194,7 @@ class MainWindow(QtWidgets.QMainWindow):
             individual.calculate_fitness()
 
         if self.current_generation >= GEN_LIMIT:
-                    for i in range(self.population.num_individuals):
-                        save_snake("../subjectes/prova2","subjecte_"+str(i),self.population.individuals[i],self.settings)
+                    save_snake("../subjectes/prova2","subjecte_1",self.population.fittest_individual,self.settings)
                     f = open("../subjectes/output.txt","w")
                     f.write('======================= Generation {} =======================\n'.format(self.current_generation))
                     f.write('----Max fitness: {}\n'.format(self.population.fittest_individual.fitness))
