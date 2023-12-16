@@ -1,6 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 import sys
+import math
 from typing import List
 from neural_network import *
 from snake import Snake
@@ -48,7 +49,7 @@ class NeuralNetworkViz(QtWidgets.QWidget):
         
         # Draw nodes
         for layer, num_nodes in enumerate(layer_nodes):
-            v_offset = (height - ((2*radius + vertical_space) * num_nodes))/2
+            v_offset = (height - ((2*radius + vertical_space) * num_nodes))//2
             activations = None
             if layer > 0:
                 activations = self.snake.network.params['A' + str(layer)]
@@ -80,7 +81,7 @@ class NeuralNetworkViz(QtWidgets.QWidget):
                 # Output layer
                 elif layer == len(layer_nodes) - 1:
                     text = ('U', 'D', 'L', 'R')[node]
-                    painter.drawText(h_offset + 30, node * (radius*2 + vertical_space) + v_offset + 1.5*radius, text)
+                    painter.drawText(h_offset + 30, math.ceil(node * (radius*2 + vertical_space) + v_offset + 2*radius), text)
                     if node == max_out:
                         painter.setBrush(QtGui.QBrush(Qt.green))
                     else:

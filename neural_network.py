@@ -9,6 +9,7 @@ tanh = ActivationFunction(lambda X: np.tanh(X))
 relu = ActivationFunction(lambda X: np.maximum(0, X))
 leaky_relu = ActivationFunction(lambda X: np.where(X > 0, X, X * 0.01))
 linear = ActivationFunction(lambda X: X)
+softmax = ActivationFunction(lambda X: FeedForwardNetwork.softmax(X))
 
 
 
@@ -49,7 +50,7 @@ class FeedForwardNetwork(object):
             W = self.params['W' + str(l)]
             b = self.params['b' + str(l)]
             Z = np.dot(W, A_prev) + b
-            A_prev = self.hidden_activation(Z)
+            A_prev = self.hidden_activation[l-1](Z)
             self.params['A' + str(l)] = A_prev
 
         # Feed output
@@ -63,7 +64,9 @@ class FeedForwardNetwork(object):
         return out
 
     def softmax(self, X: np.ndarray) -> np.ndarray:
-        return np.exp(X) / np.sum(np.exp(X), axis=0)
+        e_x = np.exp(X - np.max(X))
+        return e_x / e_x.sum(axis=0)
+        #return np.exp(X) / np.sum(np.exp(X), axis=0)
 
 def get_activation_by_name(name: str) -> ActivationFunction:
     activations = [('relu', relu),
@@ -71,6 +74,7 @@ def get_activation_by_name(name: str) -> ActivationFunction:
                    ('linear', linear),
                    ('leaky_relu', leaky_relu),
                    ('tanh', tanh),
+                   ('softmax', softmax),
     ]
 
     func = [activation[1] for activation in activations if activation[0].lower() == name.lower()]

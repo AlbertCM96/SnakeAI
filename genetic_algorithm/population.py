@@ -33,7 +33,11 @@ class Population(object):
 
     @property
     def fittest_individual(self) -> Individual:
-        return max(self.individuals, key = lambda individual: individual.fitness)
+        fittestIndividual = self.individuals[0]
+        for individual in self.individuals:
+            if individual.fitness > fittestIndividual.fitness:
+                fittestIndividual = individual
+        return fittestIndividual #max(self.individuals, key = lambda individual: individual.fitness)
 
     @fittest_individual.setter
     def fittest_individual(self, val) -> None:

@@ -7,11 +7,11 @@ settings = {
     #### Neural Network related stuff ####
 
     # Hidden layer activation is specific to hidden layers, i.e. all layers except the input and output
-    'hidden_layer_activation':     'relu',     # Options are [relu, sigmoid, tanh, linear, leaky_relu]
+    'hidden_layer_activation':     ['relu'],     # Options are [relu, sigmoid, tanh, linear, leaky_relu, softmax]
     # Output layer activation is specific to the output layer 
-    'output_layer_activation':     'sigmoid',  # Options are [relu, sigmoid, tanh, linear, leaky_relu]
+    'output_layer_activation':     'sigmoid',  # Options are [relu, sigmoid, tanh, linear, leaky_relu, softmax]
     # Hidden network architecture describes the number of nodes in each hidden layer
-    'hidden_network_architecture': [20, 12],   # A list containing number of nodes in each hidden layer
+    'hidden_network_architecture': [],   # A list containing number of nodes in each hidden layer
     # Number of directions the snake can "see" in
     'vision_type':                 8,          # Options are [4, 8, 16]
 
@@ -20,7 +20,7 @@ settings = {
     ## Mutation ##
 
     # Mutation rate is the probability that a given gene in a chromosome will randomly mutate
-    'mutation_rate':               0.05,       # Value must be between [0.00, 1.00)
+    'mutation_rate':               0.2,       # Value must be between [0.00, 1.00)
     # If the mutation rate type is static, then the mutation rate will always be `mutation_rate`,
     # otherwise if it is decaying it will decrease as the number of generations increase
     'mutation_rate_type':          'static',   # Options are [static, decaying]
@@ -73,6 +73,6 @@ settings = {
     # If the vision is binary, then the input into the Neural Network is 1 (can see) or 0 (cannot see).
     # If the vision is distance, then the input into the Neural Network is 1.0/distance.
     # 1.0/distance is used to keep values capped at 1.0 as a max.
-    'apple_and_self_vision':       'binary'    # Options are ['binary', 'distance'] 
+    'apple_and_self_vision':       'distance'    # Options are ['binary', 'distance'] 
 
 }

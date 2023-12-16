@@ -1,6 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 import sys
+import math
 from typing import List
 from snake import *
 import numpy as np
@@ -20,10 +21,17 @@ import csv
 
 SQUARE_SIZE = (35, 35)
 
+GEN_LIMIT=5
+training = False
+
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, settings, show=True, fps=200):
+    def __init__(self, settings, show=True, fps=1000000):
+        if training:
+            show = False
+            fps = 1000000
+
         super().__init__()
         self.setAutoFillBackground(True)
         palette = self.palette()
@@ -65,14 +73,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.height = self._snake_widget_height + self.border[1] + self.border[3] + 200
         
         individuals: List[Individual] = []
-
-        for _ in range(self.settings['num_parents']):
-            individual = Snake(self.board_size, hidden_layer_architecture=self.settings['hidden_network_architecture'],
-                              hidden_activation=self.settings['hidden_layer_activation'],
-                              output_activation=self.settings['output_layer_activation'],
-                              lifespan=self.settings['lifespan'],
-                              apple_and_self_vision=self.settings['apple_and_self_vision'])
-            individuals.append(individual)
+        if training:
+            for _ in range(self.settings['num_parents']):
+                individual = Snake(self.board_size, hidden_layer_architecture=self.settings['hidden_network_architecture'],
+                                hidden_activation=self.settings['hidden_layer_activation'],
+                                output_activation=self.settings['output_layer_activation'],
+                                lifespan=self.settings['lifespan'],
+                                apple_and_self_vision=self.settings['apple_and_self_vision'])
+                individuals.append(individual)
+        else:
+                individuals.append(load_snake("C:/Users/alber/OneDrive/Desktop/Escola/UdG/Assignatures/4t/Intel·ligència artifical 2.0/subjectes/prova2","subjecte_" + str(tested)))
 
         self.best_fitness = 0
         self.best_score = 0
@@ -87,7 +97,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update)
-        self.timer.start(1000./fps)
+        self.timer.start(1000//fps)
 
         if show:
             self.show()
@@ -128,7 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # Calculate fitness of current individual
             self.snake.calculate_fitness()
             fitness = self.snake.fitness
-            print(self._current_individual, fitness)
+            #print(self._current_individual, fitness)
 
             # fieldnames = ['frames', 'score', 'fitness']
             # f = os.path.join(os.getcwd(), 'test_del3_1_0_stats.csv')
@@ -159,10 +169,11 @@ class MainWindow(QtWidgets.QMainWindow):
             if (self.current_generation > 0 and self._current_individual == self._next_gen_size) or\
                 (self.current_generation == 0 and self._current_individual == settings['num_parents']):
                 print(self.settings)
-                print('======================= Gneration {} ======================='.format(self.current_generation))
+                print('======================= Generation {} ======================='.format(self.current_generation))
                 print('----Max fitness:', self.population.fittest_individual.fitness)
                 print('----Best Score:', self.population.fittest_individual.score)
                 print('----Average fitness:', self.population.average_fitness)
+                print('best score: {}'.format(self.population.individuals.index(self.population.fittest_individual)))
                 self.next_generation()
             else:
                 current_pop = self.settings['num_parents'] if self.current_generation == 0 else self._next_gen_size
@@ -179,6 +190,18 @@ class MainWindow(QtWidgets.QMainWindow):
         # Calculate fitness of individuals
         for individual in self.population.individuals:
             individual.calculate_fitness()
+
+        if self.current_generation >= GEN_LIMIT:
+                    for i in range(self.population.num_individuals):
+                        save_snake("C:/Users/alber/OneDrive/Desktop/Escola/UdG/Assignatures/4t/Intel·ligència artifical 2.0/subjectes/prova2","subjecte_"+str(i),self.population.individuals[i],self.settings)
+                    f = open("C:/Users/alber/OneDrive/Desktop/Escola/UdG/Assignatures/4t/Intel·ligència artifical 2.0/subjectes/output.txt","w")
+                    f.write('======================= Generation {} =======================\n'.format(self.current_generation))
+                    f.write('----Max fitness: {}\n'.format(self.population.fittest_individual.fitness))
+                    f.write('----Best Score:{}\n'.format(self.population.fittest_individual.score))
+                    f.write('----Average fitness: {}\n'.format(self.population.average_fitness))
+                    f.write('best individual: {}'.format(self.population.individuals.index(self.population.fittest_individual)))
+                    f.close
+                    exit()
         
         self.population.individuals = elitism_selection(self.population, self.settings['num_parents'])
         
@@ -413,7 +436,7 @@ class GeneticAlgoWidget(QtWidgets.QWidget):
         ROW += 1
 
         # Hidden layer activation
-        hidden_layer_activation = ' '.join([word.lower().capitalize() for word in settings['hidden_layer_activation'].split('_')])
+        hidden_layer_activation = ' '.join([word.lower().capitalize() for word in settings['hidden_layer_activation']])
         self._create_label_widget_in_grid('Hidden Activation: ', font_bold, grid, ROW, LABEL_COL, TOP_LEFT)
         self._create_label_widget_in_grid(hidden_layer_activation, font, grid, ROW, STATS_COL, TOP_LEFT)
         ROW += 1
@@ -524,14 +547,14 @@ class SnakeWidget(QtWidgets.QWidget):
             painter.setPen(QtGui.QPen(Qt.green))
             end_x = drawable_vision.apple_location.x * SQUARE_SIZE[0] + SQUARE_SIZE[0]/2
             end_y = drawable_vision.apple_location.y * SQUARE_SIZE[1] + SQUARE_SIZE[1]/2
-            painter.drawLine(start_x, start_y, end_x, end_y)
+            painter.drawLine(math.ceil(start_x), math.ceil(start_y), math.ceil(end_x), math.ceil(end_y))
             return end_x, end_y
 
         def _draw_line_to_self(painter: QtGui.QPainter, start_x: int, start_y: int, drawable_vision: DrawableVision) -> Tuple[int, int]:
             painter.setPen(QtGui.QPen(Qt.red))
             end_x = drawable_vision.self_location.x * SQUARE_SIZE[0] + SQUARE_SIZE[0]/2
             end_y = drawable_vision.self_location.y * SQUARE_SIZE[1] + SQUARE_SIZE[1]/2
-            painter.drawLine(start_x, start_y, end_x, end_y)
+            painter.drawLine(math.ceil(start_x), math.ceil(start_y), math.ceil(end_x), math.ceil(end_y))
             return end_x, end_y
 
         for point in self.snake.snake_array:
@@ -567,7 +590,7 @@ class SnakeWidget(QtWidgets.QWidget):
                         painter.setPen(QtGui.QPen(Qt.black))
                         end_x = drawable_vision.wall_location.x * SQUARE_SIZE[0] + SQUARE_SIZE[0]/2
                         end_y = drawable_vision.wall_location.y * SQUARE_SIZE[1] + SQUARE_SIZE[1]/2 
-                        painter.drawLine(start_x, start_y, end_x, end_y)
+                        painter.drawLine(math.ceil(start_x), math.ceil(start_y), math.ceil(end_x), math.ceil(end_y))
 
 
     def draw_apple(self, painter: QtGui.QPainter) -> None:

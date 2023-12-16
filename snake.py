@@ -90,7 +90,7 @@ class Snake(Individual):
         self.network_architecture.extend(self.hidden_layer_architecture)  # Hidden layers
         self.network_architecture.append(4)                               # 4 outputs, ['u', 'd', 'l', 'r']
         self.network = FeedForwardNetwork(self.network_architecture,
-                                          get_activation_by_name(self.hidden_activation),
+                                          np.array(list(map(get_activation_by_name, self.hidden_activation))),
                                           get_activation_by_name(self.output_activation)
         )
 
@@ -129,9 +129,10 @@ class Snake(Individual):
     
     def calculate_fitness(self):
         # Give positive minimum fitness for roulette wheel selection
-        self._fitness = (self._frames) + ((2**self.score) + (self.score**2.1)*500) - (((.25 * self._frames)**1.3) * (self.score**1.2))
+        #self._fitness = (self._frames) + ((2**self.score) + (self.score**2.1)*500) - (((.25 * self._frames)**1.3) * (self.score**1.2))
+        self._fitness = self.score
         # self._fitness = (self._frames) + ((2**self.score) + (self.score**2.1)*500) - (((.25 * self._frames)) * (self.score))
-        self._fitness = max(self._fitness, .1)
+        #self._fitness = max(self._fitness, .1)
 
     @property
     def chromosome(self):
@@ -422,7 +423,8 @@ def save_snake(population_folder: str, individual_name: str, snake: Snake, setti
 
     # Make directory for the individual
     individual_dir = os.path.join(population_folder, individual_name)
-    os.makedirs(individual_dir)
+    if(not os.path.exists(individual_dir)):
+        os.makedirs(individual_dir)
 
     # Save some constructor information for replay
     # @NOTE: No need to save chromosome since that is saved as .npy
@@ -479,6 +481,7 @@ def load_snake(population_folder: str, individual_name: str, settings: Optional[
     # Load constructor params for the specific snake
     constructor_params = {}
     snake_constructor_file = os.path.join(population_folder, individual_name, 'constructor_params.json')
+    print(snake_constructor_file)
     with open(snake_constructor_file, 'r', encoding='utf-8') as fp:
         constructor_params = json.load(fp)
 
