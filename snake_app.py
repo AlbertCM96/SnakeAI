@@ -24,6 +24,8 @@ SQUARE_SIZE = (35, 35)
 GEN_LIMIT=5
 training = False
 
+tested = 625
+
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -82,7 +84,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 apple_and_self_vision=self.settings['apple_and_self_vision'])
                 individuals.append(individual)
         else:
-                individuals.append(load_snake("C:/Users/alber/OneDrive/Desktop/Escola/UdG/Assignatures/4t/Intel·ligència artifical 2.0/subjectes/prova2","subjecte_" + str(tested)))
+                individuals.append(load_snake("../subjectes/prova2","subjecte_" + str(tested)))
 
         self.best_fitness = 0
         self.best_score = 0
@@ -193,8 +195,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.current_generation >= GEN_LIMIT:
                     for i in range(self.population.num_individuals):
-                        save_snake("C:/Users/alber/OneDrive/Desktop/Escola/UdG/Assignatures/4t/Intel·ligència artifical 2.0/subjectes/prova2","subjecte_"+str(i),self.population.individuals[i],self.settings)
-                    f = open("C:/Users/alber/OneDrive/Desktop/Escola/UdG/Assignatures/4t/Intel·ligència artifical 2.0/subjectes/output.txt","w")
+                        save_snake("../subjectes/prova2","subjecte_"+str(i),self.population.individuals[i],self.settings)
+                    f = open("../subjectes/output.txt","w")
                     f.write('======================= Generation {} =======================\n'.format(self.current_generation))
                     f.write('----Max fitness: {}\n'.format(self.population.fittest_individual.fitness))
                     f.write('----Best Score:{}\n'.format(self.population.fittest_individual.score))
